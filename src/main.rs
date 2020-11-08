@@ -6,9 +6,15 @@ extern crate rocket;
 mod docker;
 
 #[get("/")]
-async fn index() -> &'static str {
-    docker::list().await.unwrap();
-    "Hello, world!"
+async fn index() -> String {
+    let containers = docker::list().await.unwrap();
+    let names = containers
+        .iter()
+        .map(|c| c.names[0].clone())
+        .collect::<Vec<String>>()
+        .join(", ");
+
+    format!("Found active containers {}\n", names)
 }
 
 #[launch]

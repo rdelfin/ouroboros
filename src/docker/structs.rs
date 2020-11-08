@@ -36,7 +36,7 @@ pub struct Container {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct DockerError {
+pub struct DockerErrorBody {
     pub message: String,
 }
 
