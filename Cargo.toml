@@ -14,3 +14,4 @@ rocket = { git = "https://github.com/SergioBenitez/Rocket", rev = "fa77435187aae
 serde = "1.0.117"
 serde_json = "1.0.59"
 thiserror = "1.0.22"
+bytes = "0.5"
