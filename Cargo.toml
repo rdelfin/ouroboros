@@ -1,5 +1,5 @@
 [package]
-name = "agent"
+name = "ouroboros"
 version = "0.1.0"
 authors = ["Ricardo Delfin <me@rdelfin.com>"]
 edition = "2018"
