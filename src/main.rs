@@ -11,8 +11,8 @@ use crate::response::Container;
 use rocket::response::content;
 use serde_json;
 
-#[get("/")]
-async fn index() -> content::Json<String> {
+#[get("/docker/list")]
+async fn docker_list() -> content::Json<String> {
     let docker_client = DockerClient::default();
 
     let containers = docker_client.list().await.unwrap();
@@ -29,5 +29,5 @@ async fn index() -> content::Json<String> {
 
 #[launch]
 fn rocket() -> rocket::Rocket {
-    rocket::ignite().mount("/", routes![index])
+    rocket::ignite().mount("/", routes![docker_list])
 }
