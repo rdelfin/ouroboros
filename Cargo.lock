@@ -8,6 +8,8 @@ dependencies = [
  "hyper",
  "hyperlocal",
  "rocket",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
