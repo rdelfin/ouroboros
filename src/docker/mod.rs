@@ -2,8 +2,8 @@ mod structs;
 
 use self::structs::{Container, DockerErrorBody};
 use bytes::buf::BufExt;
-use hyper::{Client, Error as HyperError};
-use hyperlocal::{UnixClientExt, Uri};
+use hyper::{Body, Client, Error as HyperError};
+use hyperlocal::{UnixClientExt, UnixConnector, Uri};
 use serde::de;
 use serde_json::Error as JsonError;
 use std::path::Path;
@@ -19,25 +19,43 @@ pub enum DockerError {
     HTTPError(#[from] HyperError),
 }
 
-pub async fn list() -> Result<Vec<Container>, DockerError> {
-    call_api::<Vec<Container>>("/v1.40/containers/json").await
+pub struct DockerClient {
+    client: Client<UnixConnector, Body>,
+    sock_path: String,
 }
 
-async fn call_api<'a, T: de::DeserializeOwned>(url_path: &str) -> Result<T, DockerError> {
-    let path = Path::new("/var/run/docker.sock");
-    let url = Uri::new(path, url_path).into();
+impl Default for DockerClient {
+    fn default() -> Self {
+        Self::new("/var/run/docker.sock")
+    }
+}
 
-    let client = Client::unix();
+impl DockerClient {
+    pub fn new(sock_path: &str) -> Self {
+        DockerClient {
+            client: Client::unix(),
+            sock_path: sock_path.into(),
+        }
+    }
 
-    let res = client.get(url).await?;
-    let status = res.status();
-    let body = hyper::body::aggregate(res).await?;
+    pub async fn list(&self) -> Result<Vec<Container>, DockerError> {
+        self.call_api::<Vec<Container>>("/v1.40/containers/json")
+            .await
+    }
 
-    if status == 200 {
-        Ok(serde_json::from_reader(body.reader())?)
-    } else {
-        Err(DockerError::APIError(serde_json::from_reader(
-            body.reader(),
-        )?))
+    async fn call_api<T: de::DeserializeOwned>(&self, url_path: &str) -> Result<T, DockerError> {
+        let url = Uri::new(Path::new(&self.sock_path), url_path).into();
+
+        let res = self.client.get(url).await?;
+        let status = res.status();
+        let body = hyper::body::aggregate(res).await?;
+
+        if status == 200 {
+            Ok(serde_json::from_reader(body.reader())?)
+        } else {
+            Err(DockerError::APIError(serde_json::from_reader(
+                body.reader(),
+            )?))
+        }
     }
 }

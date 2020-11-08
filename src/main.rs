@@ -5,9 +5,13 @@ extern crate rocket;
 
 mod docker;
 
+use docker::DockerClient;
+
 #[get("/")]
 async fn index() -> String {
-    let containers = docker::list().await.unwrap();
+    let docker_client = DockerClient::default();
+
+    let containers = docker_client.list().await.unwrap();
     let names = containers
         .iter()
         .map(|c| c.names[0].clone())
