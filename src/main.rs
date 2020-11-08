@@ -9,7 +9,6 @@ mod response;
 use crate::docker::DockerClient;
 use crate::response::Container;
 use rocket::response::content;
-use serde_json;
 
 #[get("/docker/list")]
 async fn docker_list() -> content::Json<String> {
