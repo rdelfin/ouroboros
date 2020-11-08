@@ -4,21 +4,27 @@
 extern crate rocket;
 
 mod docker;
+mod response;
 
-use docker::DockerClient;
+use crate::docker::DockerClient;
+use crate::response::Container;
+use rocket::response::content;
+use serde_json;
 
 #[get("/")]
-async fn index() -> String {
+async fn index() -> content::Json<String> {
     let docker_client = DockerClient::default();
 
     let containers = docker_client.list().await.unwrap();
     let names = containers
         .iter()
-        .map(|c| c.names[0].clone())
-        .collect::<Vec<String>>()
-        .join(", ");
+        .map(|c| Container {
+            name: c.names[0].clone(),
+            id: c.id.clone(),
+        })
+        .collect::<Vec<Container>>();
 
-    format!("Found active containers {}\n", names)
+    content::Json(serde_json::to_string(&names).unwrap())
 }
 
 #[launch]
