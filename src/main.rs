@@ -3,8 +3,11 @@
 #[macro_use]
 extern crate rocket;
 
+mod docker;
+
 #[get("/")]
 async fn index() -> &'static str {
+    docker::list().await.unwrap();
     "Hello, world!"
 }
 
