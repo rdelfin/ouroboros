@@ -1,4 +1,4 @@
-FROM rust:1.31
+FROM rustlang/rust:nightly
 
 WORKDIR /usr/src/ouroboros
 COPY . .
