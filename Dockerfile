@@ -1,4 +1,4 @@
-FROM rustlang/rust:nightly
+FROM jdrouet/rust-nightly:buster-slim
 
 WORKDIR /usr/src/ouroboros
 COPY . .
