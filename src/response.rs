@@ -4,4 +4,5 @@ use serde::{Deserialize, Serialize};
 pub struct Container {
     pub name: String,
     pub id: String,
+    pub command: String,
 }

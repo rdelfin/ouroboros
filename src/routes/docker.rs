@@ -15,6 +15,7 @@ pub async fn list() -> content::Json<String> {
         .map(|c| Container {
             name: c.names[0].clone(),
             id: c.id.clone(),
+            command: c.command.clone(),
         })
         .collect::<Vec<Container>>();
 
