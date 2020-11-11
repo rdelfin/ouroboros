@@ -1,9 +1,5 @@
 use crate::{docker::DockerClient, response::Container};
-use anyhow::Result;
-use rocket::{
-    http::{ContentType, Header},
-    response::content,
-};
+use rocket::response::content;
 
 #[get("/list")]
 pub async fn list() -> content::Json<String> {
