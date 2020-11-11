@@ -6,10 +6,10 @@ use rocket::{
 };
 
 #[get("/list")]
-pub async fn list() -> Result<content::Json<String>> {
+pub async fn list() -> content::Json<String> {
     let docker_client = DockerClient::default();
 
-    let containers = docker_client.list().await?;
+    let containers = docker_client.list().await.unwrap();
     let names = containers
         .iter()
         .map(|c| Container {
@@ -18,5 +18,5 @@ pub async fn list() -> Result<content::Json<String>> {
         })
         .collect::<Vec<Container>>();
 
-    Ok(content::Json(serde_json::to_string(&names)?))
+    content::Json(serde_json::to_string(&names).unwrap())
 }
