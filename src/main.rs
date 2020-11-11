@@ -5,28 +5,9 @@ extern crate rocket;
 
 mod docker;
 mod response;
-
-use crate::docker::DockerClient;
-use crate::response::Container;
-use rocket::response::content;
-
-#[get("/docker/list")]
-async fn docker_list() -> content::Json<String> {
-    let docker_client = DockerClient::default();
-
-    let containers = docker_client.list().await.unwrap();
-    let names = containers
-        .iter()
-        .map(|c| Container {
-            name: c.names[0].clone(),
-            id: c.id.clone(),
-        })
-        .collect::<Vec<Container>>();
-
-    content::Json(serde_json::to_string(&names).unwrap())
-}
+mod routes;
 
 #[launch]
 fn rocket() -> rocket::Rocket {
-    rocket::ignite().mount("/", routes![docker_list])
+    rocket::ignite().mount("/docker", routes![routes::docker::list])
 }
