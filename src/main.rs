@@ -3,7 +3,6 @@
 #[macro_use]
 extern crate rocket;
 
-mod docker;
 mod response;
 mod routes;
 
