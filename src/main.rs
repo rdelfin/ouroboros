@@ -10,6 +10,10 @@ mod structs;
 fn rocket() -> rocket::Rocket {
     rocket::ignite().mount(
         "/docker",
-        routes![routes::docker::list, routes::docker::create_image],
+        routes![
+            routes::docker::list,
+            routes::docker::create_image,
+            routes::docker::create_container
+        ],
     )
 }
