@@ -8,5 +8,8 @@ mod structs;
 
 #[launch]
 fn rocket() -> rocket::Rocket {
-    rocket::ignite().mount("/docker", routes![routes::docker::list])
+    rocket::ignite().mount(
+        "/docker",
+        routes![routes::docker::list, routes::docker::create_image],
+    )
 }

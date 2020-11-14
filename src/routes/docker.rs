@@ -1,11 +1,10 @@
-use crate::structs::Container;
-use anyhow::Result;
-use bollard::{CreateImageOptions, Docker};
-use rocket::response::content;
+use crate::structs::{Container, ImageCreateRequest, ImageCreateResponse};
+use bollard::{errors::Error as BollardError, image::CreateImageOptions, Docker};
+use rocket::futures::StreamExt;
 use rocket_contrib::json::Json;
 
-#[get("/list")]
-pub async fn list() -> content::Json<String> {
+#[get("/list", format = "json")]
+pub async fn list() -> Json<Vec<Container>> {
     let docker_client = get_client().unwrap();
 
     let containers = docker_client
@@ -24,9 +23,31 @@ pub async fn list() -> content::Json<String> {
         })
         .collect::<Vec<_>>();
 
-    content::Json(serde_json::to_string(&containers).unwrap())
+    Json(containers)
 }
 
-fn get_client() -> Result<Docker> {
-    Docker::connect_with_local_defaults()
+#[post("/image/create", format = "json", data = "<req>")]
+pub async fn create_image(req: Json<ImageCreateRequest>) -> Json<ImageCreateResponse> {
+    let docker_client = get_client().unwrap();
+
+    let img_results = docker_client.create_image(
+        Some(CreateImageOptions {
+            from_image: req.name.clone(),
+            ..Default::default()
+        }),
+        None,
+        None,
+    );
+    img_results
+        .collect::<Vec<_>>()
+        .await
+        .into_iter()
+        .collect::<Result<Vec<_>, BollardError>>()
+        .unwrap();
+
+    Json(ImageCreateResponse { ok: true })
+}
+
+fn get_client() -> Result<Docker, BollardError> {
+    Ok(Docker::connect_with_local_defaults()?)
 }

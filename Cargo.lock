@@ -901,6 +901,7 @@ dependencies = [
  "hyper",
  "hyperlocal",
  "rocket",
+ "rocket_contrib",
  "serde",
  "serde_json",
  "thiserror",
@@ -1194,6 +1195,18 @@ dependencies = [
  "indexmap",
  "quote",
  "rocket_http",
+]
+
+[[package]]
+name = "rocket_contrib"
+version = "0.5.0-dev"
+source = "git+https://github.com/SergioBenitez/Rocket?rev=fa77435187aaedda73b0caad0ab5bfdb24a8b476#fa77435187aaedda73b0caad0ab5bfdb24a8b476"
+dependencies = [
+ "log",
+ "rocket",
+ "serde",
+ "serde_json",
+ "tokio",
 ]
 
 [[package]]

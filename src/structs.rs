@@ -6,3 +6,13 @@ pub struct Container {
     pub id: String,
     pub command: String,
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ImageCreateRequest {
+    pub name: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ImageCreateResponse {
+    pub ok: bool,
+}
