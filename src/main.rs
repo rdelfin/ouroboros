@@ -3,8 +3,8 @@
 #[macro_use]
 extern crate rocket;
 
-mod response;
 mod routes;
+mod structs;
 
 #[launch]
 fn rocket() -> rocket::Rocket {
