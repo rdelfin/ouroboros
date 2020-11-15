@@ -3,7 +3,7 @@ use crate::structs::{
     ImageCreateResponse,
 };
 use bollard::{
-    container::{Config as ContainerConfig, CreateContainerOptions},
+    container::{Config as ContainerConfig, CreateContainerOptions, UpdateContainerOptions},
     errors::Error as BollardError,
     image::CreateImageOptions,
     Docker,
@@ -99,6 +99,19 @@ pub async fn create_container(req: Json<ContainerCreateRequest>) -> Json<Contain
         )
         .await
         .unwrap();
+
+    if let Some(restart_policy) = &req.restart_policy {
+        docker_client
+            .update_container(
+                &req.name,
+                UpdateContainerOptions::<String> {
+                    restart_policy: Some(restart_policy.clone().into()),
+                    ..Default::default()
+                },
+            )
+            .await
+            .unwrap();
+    }
 
     Json(ContainerCreateResponse {
         id: res.id,

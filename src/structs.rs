@@ -1,3 +1,6 @@
+use bollard::service::{
+    RestartPolicy as BollardRestartPolicy, RestartPolicyNameEnum as BollardRestartPolicyNameEnum,
+};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -25,6 +28,7 @@ pub struct ContainerCreateRequest {
     pub port_mappings: Vec<PortMapping>,
     pub environment: HashMap<String, Option<String>>,
     pub volumes: Vec<Volume>,
+    pub restart_policy: Option<RestartPolicy>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -45,4 +49,42 @@ pub struct PortMapping {
 pub struct Volume {
     pub host_dir: String,
     pub container_dir: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct RestartPolicy {
+    pub name: RestartPolicyName,
+    pub max_retries: Option<i64>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+pub enum RestartPolicyName {
+    #[serde(rename = "always")]
+    Always,
+    #[serde(rename = "unless_stopped")]
+    UnlessStopped,
+    #[serde(rename = "on_failure")]
+    OnFailure,
+    #[serde(rename = "no")]
+    NoRestart,
+}
+
+impl Into<BollardRestartPolicyNameEnum> for RestartPolicyName {
+    fn into(self) -> BollardRestartPolicyNameEnum {
+        match self {
+            RestartPolicyName::Always => BollardRestartPolicyNameEnum::ALWAYS,
+            RestartPolicyName::UnlessStopped => BollardRestartPolicyNameEnum::UNLESS_STOPPED,
+            RestartPolicyName::OnFailure => BollardRestartPolicyNameEnum::ON_FAILURE,
+            RestartPolicyName::NoRestart => BollardRestartPolicyNameEnum::NO,
+        }
+    }
+}
+
+impl Into<BollardRestartPolicy> for &RestartPolicy {
+    fn into(self) -> BollardRestartPolicy {
+        BollardRestartPolicy {
+            name: Some(self.name.into()),
+            maximum_retry_count: self.max_retries,
+        }
+    }
 }
