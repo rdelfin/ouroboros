@@ -48,6 +48,17 @@ pub struct ContainerStartResponse {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct ContainerStopRequest {
+    pub name: String,
+    pub stop_timeout: Option<i64>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ContainerStopResponse {
+    pub ok: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct PortMapping {
     pub container_port: u32,
     pub host_port: u32,

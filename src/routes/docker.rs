@@ -1,9 +1,13 @@
 use crate::structs::{
     Container, ContainerCreateRequest, ContainerCreateResponse, ContainerStartRequest,
-    ContainerStartResponse, ImageCreateRequest, ImageCreateResponse,
+    ContainerStartResponse, ContainerStopRequest, ContainerStopResponse, ImageCreateRequest,
+    ImageCreateResponse,
 };
 use bollard::{
-    container::{Config as ContainerConfig, CreateContainerOptions, UpdateContainerOptions},
+    container::{
+        Config as ContainerConfig, CreateContainerOptions, StopContainerOptions,
+        UpdateContainerOptions,
+    },
     errors::Error as BollardError,
     image::CreateImageOptions,
     Docker,
@@ -129,6 +133,24 @@ pub async fn start_container(req: Json<ContainerStartRequest>) -> Json<Container
         .unwrap();
 
     Json(ContainerStartResponse { ok: true })
+}
+
+#[post("/container/stop", format = "json", data = "<req>")]
+pub async fn stop_container(req: Json<ContainerStopRequest>) -> Json<ContainerStopResponse> {
+    let docker_client = get_client().unwrap();
+
+    docker_client
+        .stop_container(
+            &req.name,
+            match req.stop_timeout {
+                None => None,
+                Some(stop_timeout) => Some(StopContainerOptions { t: stop_timeout }),
+            },
+        )
+        .await
+        .unwrap();
+
+    Json(ContainerStopResponse { ok: true })
 }
 
 fn get_client() -> Result<Docker, BollardError> {
