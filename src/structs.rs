@@ -38,6 +38,16 @@ pub struct ContainerCreateResponse {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct ContainerStartRequest {
+    pub name: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ContainerStartResponse {
+    pub ok: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct PortMapping {
     pub container_port: u32,
     pub host_port: u32,

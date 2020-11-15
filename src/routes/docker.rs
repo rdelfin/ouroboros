@@ -1,6 +1,6 @@
 use crate::structs::{
-    Container, ContainerCreateRequest, ContainerCreateResponse, ImageCreateRequest,
-    ImageCreateResponse,
+    Container, ContainerCreateRequest, ContainerCreateResponse, ContainerStartRequest,
+    ContainerStartResponse, ImageCreateRequest, ImageCreateResponse,
 };
 use bollard::{
     container::{Config as ContainerConfig, CreateContainerOptions, UpdateContainerOptions},
@@ -117,6 +117,18 @@ pub async fn create_container(req: Json<ContainerCreateRequest>) -> Json<Contain
         id: res.id,
         warnings: res.warnings,
     })
+}
+
+#[post("/container/start", format = "json", data = "<req>")]
+pub async fn start_container(req: Json<ContainerStartRequest>) -> Json<ContainerStartResponse> {
+    let docker_client = get_client().unwrap();
+
+    docker_client
+        .start_container::<String>(&req.name, None)
+        .await
+        .unwrap();
+
+    Json(ContainerStartResponse { ok: true })
 }
 
 fn get_client() -> Result<Docker, BollardError> {

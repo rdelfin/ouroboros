@@ -13,7 +13,8 @@ fn rocket() -> rocket::Rocket {
         routes![
             routes::docker::list,
             routes::docker::create_image,
-            routes::docker::create_container
+            routes::docker::create_container,
+            routes::docker::start_container,
         ],
     )
 }
