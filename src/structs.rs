@@ -59,6 +59,16 @@ pub struct ContainerStopResponse {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct ContainerRemoveRequest {
+    pub name: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ContainerRemoveResponse {
+    pub ok: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct PortMapping {
     pub container_port: u32,
     pub host_port: u32,

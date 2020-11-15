@@ -16,6 +16,7 @@ fn rocket() -> rocket::Rocket {
             routes::docker::create_container,
             routes::docker::start_container,
             routes::docker::stop_container,
+            routes::docker::remove_container,
         ],
     )
 }

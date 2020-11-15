@@ -1,7 +1,7 @@
 use crate::structs::{
-    Container, ContainerCreateRequest, ContainerCreateResponse, ContainerStartRequest,
-    ContainerStartResponse, ContainerStopRequest, ContainerStopResponse, ImageCreateRequest,
-    ImageCreateResponse,
+    Container, ContainerCreateRequest, ContainerCreateResponse, ContainerRemoveRequest,
+    ContainerRemoveResponse, ContainerStartRequest, ContainerStartResponse, ContainerStopRequest,
+    ContainerStopResponse, ImageCreateRequest, ImageCreateResponse,
 };
 use bollard::{
     container::{
@@ -151,6 +151,18 @@ pub async fn stop_container(req: Json<ContainerStopRequest>) -> Json<ContainerSt
         .unwrap();
 
     Json(ContainerStopResponse { ok: true })
+}
+
+#[post("/container/remove", format = "json", data = "<req>")]
+pub async fn remove_container(req: Json<ContainerRemoveRequest>) -> Json<ContainerRemoveResponse> {
+    let docker_client = get_client().unwrap();
+
+    docker_client
+        .remove_container(&req.name, None)
+        .await
+        .unwrap();
+
+    Json(ContainerRemoveResponse { ok: true })
 }
 
 fn get_client() -> Result<Docker, BollardError> {
