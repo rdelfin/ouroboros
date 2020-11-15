@@ -1,5 +1,6 @@
 use bollard::service::{
-    RestartPolicy as BollardRestartPolicy, RestartPolicyNameEnum as BollardRestartPolicyNameEnum,
+    Port as BollardPort, PortTypeEnum as BollardPortType, RestartPolicy as BollardRestartPolicy,
+    RestartPolicyNameEnum as BollardRestartPolicyNameEnum,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -9,6 +10,10 @@ pub struct Container {
     pub name: String,
     pub id: String,
     pub command: String,
+    pub image: String,
+    pub state: Option<String>,
+    pub status: Option<String>,
+    pub ports: Vec<PortMapping>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -70,10 +75,63 @@ pub struct ContainerRemoveResponse {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct PortMapping {
-    pub container_port: u32,
-    pub host_port: u32,
-    pub ip_addr: String,
-    pub protocol: String,
+    pub container_port: i64,
+    pub host_port: Option<i64>,
+    pub ip_addr: Option<String>,
+    pub protocol: PortProtocol,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+pub enum PortProtocol {
+    #[serde(rename = "tcp")]
+    TCP,
+    #[serde(rename = "udp")]
+    UDP,
+    #[serde(rename = "sctp")]
+    SCTP,
+}
+
+impl PortProtocol {
+    pub fn from_opt(port: Option<BollardPortType>) -> Option<Self> {
+        match port {
+            None => None,
+            Some(port) => match port {
+                BollardPortType::EMPTY => None,
+                BollardPortType::TCP => Some(PortProtocol::TCP),
+                BollardPortType::UDP => Some(PortProtocol::UDP),
+                BollardPortType::SCTP => Some(PortProtocol::SCTP),
+            },
+        }
+    }
+
+    pub fn to_str_name(&self) -> String {
+        match self {
+            PortProtocol::TCP => "tcp",
+            PortProtocol::UDP => "udp",
+            PortProtocol::SCTP => "sctp",
+        }
+        .to_string()
+    }
+}
+
+impl From<BollardPort> for PortMapping {
+    fn from(port: BollardPort) -> Self {
+        PortMapping {
+            container_port: port.private_port,
+            host_port: port.public_port,
+            ip_addr: port.ip,
+            protocol: PortProtocol::from_opt(port.typ).unwrap_or(PortProtocol::TCP),
+        }
+    }
+}
+
+impl PortMapping {
+    pub fn to_bollard_map(&self) -> (String, HashMap<(), ()>) {
+        return (
+            format!("{}/{}", self.container_port, self.protocol.to_str_name()),
+            HashMap::new(),
+        );
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]

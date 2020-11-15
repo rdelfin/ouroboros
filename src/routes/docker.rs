@@ -33,6 +33,16 @@ pub async fn list() -> Json<Vec<Container>> {
                 .clone()
                 .expect("Container without a command")
                 .clone(),
+            image: c.image.clone().expect("Container without an image").clone(),
+            state: c.state.clone(),
+            status: c.status.clone(),
+            ports: c
+                .ports
+                .clone()
+                .unwrap_or(vec![])
+                .into_iter()
+                .map(|p| p.into())
+                .collect(),
         })
         .collect::<Vec<_>>();
 
@@ -74,12 +84,7 @@ pub async fn create_container(req: Json<ContainerCreateRequest>) -> Json<Contain
                 exposed_ports: Some(
                     req.port_mappings
                         .iter()
-                        .map(|mapping| {
-                            (
-                                format!("{}/{}", mapping.container_port, mapping.protocol),
-                                HashMap::new(),
-                            )
-                        })
+                        .map(|mapping| mapping.to_bollard_map())
                         .collect(),
                 ),
                 env: Some(
