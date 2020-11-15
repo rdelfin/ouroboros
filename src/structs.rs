@@ -1,6 +1,6 @@
 use bollard::service::{
-    Port as BollardPort, PortTypeEnum as BollardPortType, RestartPolicy as BollardRestartPolicy,
-    RestartPolicyNameEnum as BollardRestartPolicyNameEnum,
+    Port as BollardPort, PortBinding as BollardPortBinding, PortTypeEnum as BollardPortType,
+    RestartPolicy as BollardRestartPolicy, RestartPolicyNameEnum as BollardRestartPolicyNameEnum,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -126,11 +126,26 @@ impl From<BollardPort> for PortMapping {
 }
 
 impl PortMapping {
-    pub fn to_bollard_map(&self) -> (String, HashMap<(), ()>) {
-        return (
-            format!("{}/{}", self.container_port, self.protocol.to_str_name()),
-            HashMap::new(),
-        );
+    pub fn to_exposed_port(&self) -> (String, HashMap<(), ()>) {
+        return (self.port_key(), HashMap::new());
+    }
+
+    pub fn to_port_binding(&self) -> (String, Option<Vec<BollardPortBinding>>) {
+        if self.host_port.is_some() || self.ip_addr.is_some() {
+            (
+                self.port_key(),
+                Some(vec![BollardPortBinding {
+                    host_ip: self.ip_addr.clone(),
+                    host_port: self.host_port.map(|p| p.to_string()),
+                }]),
+            )
+        } else {
+            (self.port_key(), None)
+        }
+    }
+
+    pub fn port_key(&self) -> String {
+        format!("{}/{}", self.container_port, self.protocol.to_str_name())
     }
 }
 

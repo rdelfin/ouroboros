@@ -10,6 +10,7 @@ use bollard::{
     },
     errors::Error as BollardError,
     image::CreateImageOptions,
+    service::HostConfig,
     Docker,
 };
 use rocket::futures::StreamExt;
@@ -84,7 +85,7 @@ pub async fn create_container(req: Json<ContainerCreateRequest>) -> Json<Contain
                 exposed_ports: Some(
                     req.port_mappings
                         .iter()
-                        .map(|mapping| mapping.to_bollard_map())
+                        .map(|mapping| mapping.to_exposed_port())
                         .collect(),
                 ),
                 env: Some(
@@ -103,6 +104,15 @@ pub async fn create_container(req: Json<ContainerCreateRequest>) -> Json<Contain
                         .collect(),
                 ),
                 image: Some(req.image.clone()),
+                host_config: Some(HostConfig {
+                    port_bindings: Some(
+                        req.port_mappings
+                            .iter()
+                            .map(|mapping| mapping.to_port_binding())
+                            .collect(),
+                    ),
+                    ..Default::default()
+                }),
                 ..Default::default()
             },
         )
