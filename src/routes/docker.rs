@@ -1,7 +1,10 @@
-use crate::structs::{
-    Container, ContainerCreateRequest, ContainerCreateResponse, ContainerRemoveRequest,
-    ContainerRemoveResponse, ContainerStartRequest, ContainerStartResponse, ContainerStopRequest,
-    ContainerStopResponse, ImageCreateRequest, ImageCreateResponse,
+use crate::{
+    routes::RouteSet,
+    structs::{
+        Container, ContainerCreateRequest, ContainerCreateResponse, ContainerRemoveRequest,
+        ContainerRemoveResponse, ContainerStartRequest, ContainerStartResponse,
+        ContainerStopRequest, ContainerStopResponse, ImageCreateRequest, ImageCreateResponse,
+    },
 };
 use bollard::{
     container::{
@@ -13,12 +16,30 @@ use bollard::{
     service::HostConfig,
     Docker,
 };
-use rocket::futures::StreamExt;
+use rocket::{futures::StreamExt, Route};
 use rocket_contrib::json::Json;
 use std::collections::HashMap;
 
+pub struct DockerRoutes;
+
+impl RouteSet for DockerRoutes {
+    fn base(&self) -> String {
+        "/docker".to_string()
+    }
+    fn routes(&self) -> Vec<Route> {
+        routes![
+            list,
+            create_image,
+            create_container,
+            start_container,
+            stop_container,
+            remove_container,
+        ]
+    }
+}
+
 #[get("/list", format = "json")]
-pub async fn list() -> Json<Vec<Container>> {
+async fn list() -> Json<Vec<Container>> {
     let docker_client = get_client().unwrap();
 
     let containers = docker_client
@@ -51,7 +72,7 @@ pub async fn list() -> Json<Vec<Container>> {
 }
 
 #[post("/image/create", format = "json", data = "<req>")]
-pub async fn create_image(req: Json<ImageCreateRequest>) -> Json<ImageCreateResponse> {
+async fn create_image(req: Json<ImageCreateRequest>) -> Json<ImageCreateResponse> {
     let docker_client = get_client().unwrap();
 
     let img_results = docker_client.create_image(
@@ -73,7 +94,7 @@ pub async fn create_image(req: Json<ImageCreateRequest>) -> Json<ImageCreateResp
 }
 
 #[post("/container/create", format = "json", data = "<req>")]
-pub async fn create_container(req: Json<ContainerCreateRequest>) -> Json<ContainerCreateResponse> {
+async fn create_container(req: Json<ContainerCreateRequest>) -> Json<ContainerCreateResponse> {
     let docker_client = get_client().unwrap();
 
     let res = docker_client
@@ -139,7 +160,7 @@ pub async fn create_container(req: Json<ContainerCreateRequest>) -> Json<Contain
 }
 
 #[post("/container/start", format = "json", data = "<req>")]
-pub async fn start_container(req: Json<ContainerStartRequest>) -> Json<ContainerStartResponse> {
+async fn start_container(req: Json<ContainerStartRequest>) -> Json<ContainerStartResponse> {
     let docker_client = get_client().unwrap();
 
     docker_client
@@ -151,7 +172,7 @@ pub async fn start_container(req: Json<ContainerStartRequest>) -> Json<Container
 }
 
 #[post("/container/stop", format = "json", data = "<req>")]
-pub async fn stop_container(req: Json<ContainerStopRequest>) -> Json<ContainerStopResponse> {
+async fn stop_container(req: Json<ContainerStopRequest>) -> Json<ContainerStopResponse> {
     let docker_client = get_client().unwrap();
 
     docker_client
@@ -169,7 +190,7 @@ pub async fn stop_container(req: Json<ContainerStopRequest>) -> Json<ContainerSt
 }
 
 #[post("/container/remove", format = "json", data = "<req>")]
-pub async fn remove_container(req: Json<ContainerRemoveRequest>) -> Json<ContainerRemoveResponse> {
+async fn remove_container(req: Json<ContainerRemoveRequest>) -> Json<ContainerRemoveResponse> {
     let docker_client = get_client().unwrap();
 
     docker_client
