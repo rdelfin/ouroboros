@@ -10,7 +10,7 @@ edition = "2018"
 anyhow = "1.0"
 bollard = "0.8.0"
 bytes = "0.5"
-hyper = "0.13.9"
+hyper = "0.14.5"
 hyperlocal = "0.7"
 rocket = { git = "https://github.com/SergioBenitez/Rocket", rev = "fa77435187aaedda73b0caad0ab5bfdb24a8b476" }
 rocket_contrib = { git = "https://github.com/SergioBenitez/Rocket", rev = "fa77435187aaedda73b0caad0ab5bfdb24a8b476" }
